@@ -4,9 +4,9 @@ import glob
 from decimal import Decimal
 
 # I want to try something different
-# This program will only need to read .csv files
+# This program will only need to read .csv files and divide them into a user-defined amount
 # Only issue is I'm lazy, and I don't want to rename the csv file every time I want to upload ( i.e = myfile.csv, myfile (1).csv, myfile (2).csv ... )
-# I like glob. It's not the most performant like os, but these files are only a couple hundred rows
+# I like glob. It's not as performant as os, but these files are only a couple hundred rows
 
 folder = glob.glob("./*.csv")
 
@@ -29,15 +29,13 @@ def read_data():
 # divide and chunk leads by number of sales reps
 def chunk_leads(df):
     try:
-        
-        
-        # count = int(input("Enter number of sales support reps assigned to this spreadsheet: "))
-        # result = len(df) / count
-
-        
-
+        count = int(input("Enter number of sales support reps assigned to this spreadsheet: "))
+        result = len(df) / count
+        result = int(result)
+        for x in range(0, len(df), result):
+            df.groupby('Date Created')
             
-            
+          
     except ZeroDivisionError:
         print("Must be a number greater than zero.")
     except ValueError: 
