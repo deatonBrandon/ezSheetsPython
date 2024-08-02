@@ -1,7 +1,7 @@
 # import ezsheets
-import pandas as pd
-import glob
-from decimal import Decimal
+import csv
+import numpy as np
+import glob 
 
 # I want to try something different
 # This program will only need to read .csv files and divide them into a user-defined amount
@@ -12,42 +12,61 @@ folder = glob.glob("./*.csv")
 
 # read csv file from the glob and append it to a list
 def read_data():
-    frame = []
     try:
-        for spreadsheet in folder: 
-            temp_df = pd.read_csv(spreadsheet, dtype={"Phone 1": str}, index_col=False)
-            temp_df = temp_df.fillna('-')
-            frame.append(temp_df)
-        df = pd.concat(frame)
-        return df
+        for spreadsheet in folder:
+            with open(spreadsheet, "r") as infile:
+                frame = []
+                for rows in csv.reader(infile):
+                    frame.append(rows)
+                return frame
 
+        # for spreadsheet in folder: 
+        #     temp_df = pd.read_csv(spreadsheet, dtype={"Phone 1": str}, index_col=False)
+        #     temp_df = temp_df.fillna('-')
+        #     frame.append(temp_df)
+        # df = pd.concat(frame)
+        # return df
+    except FileNotFoundError:
+        print("No .csv files exist in this directory. Please try uploading the correct file format.")
     except OSError:
-        print("Error reading the file... Please try again.")
+        print("Something went wrong... Please try again later.")
 
 
 
-# divide and chunk leads by number of sales reps
-def chunk_leads(df):
-    try:
-        count = int(input("Enter number of sales support reps assigned to this spreadsheet: "))
-        result = len(df) / count
-        result = int(result)
-        for x in range(0, len(df), result):
-            df.groupby('Date Created')
-            
-          
-    except ZeroDivisionError:
-        print("Must be a number greater than zero.")
-    except ValueError: 
-        print("Must be a valid number only.")
+# Writing data has to be its own function, regardless of being a one-liner
+# def write_data(df):
+#     df.to_csv('ezleads.csv', index=False)
 
+
+
+# split df and chunk leads by number of sales reps
+def split_dataframe(frame):
+    chunks = []   
+    chunk_size = int(input("Enter number of sales support reps assigned to this spreadsheet: "))
+    
+    result = len(frame) // chunk_size + (1 if len(frame) % chunk_size else 0)
+        
+    for bucket in range(0, len(frame), result):
+        chunks.append(frame[bucket:bucket + result])
+
+    print(len(frame))
+    print(chunks)
 
 
 
 
 def main():
-    data = read_data()
-    chunk_leads(data)
+    frame = read_data()
+    while True:
+        try:
+            split_dataframe(frame)
+            # print("Successfully created a cleaned spreadsheet!")
+            break
+
+        except ValueError:
+            print("Must be a valid number only...")
+            continue
+
 
 
 
