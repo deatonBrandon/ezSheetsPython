@@ -1,7 +1,10 @@
 # import ezsheets
 import csv
-import numpy as np
 import glob 
+import random
+import math
+from decimal import Decimal, ROUND_HALF_UP, ROUND_HALF_DOWN
+
 
 # I want to try something different
 # This program will only need to read .csv files and divide them into a user-defined amount
@@ -16,16 +19,12 @@ def read_data():
         for spreadsheet in folder:
             with open(spreadsheet, "r") as infile:
                 frame = []
-                for rows in csv.reader(infile):
+                reader = csv.reader(infile)
+                next(reader)
+                for rows in reader:
                     frame.append(rows)
                 return frame
 
-        # for spreadsheet in folder: 
-        #     temp_df = pd.read_csv(spreadsheet, dtype={"Phone 1": str}, index_col=False)
-        #     temp_df = temp_df.fillna('-')
-        #     frame.append(temp_df)
-        # df = pd.concat(frame)
-        # return df
     except FileNotFoundError:
         print("No .csv files exist in this directory. Please try uploading the correct file format.")
     except OSError:
@@ -33,39 +32,52 @@ def read_data():
 
 
 
-# Writing data has to be its own function, regardless of being a one-liner
-# def write_data(df):
-#     df.to_csv('ezleads.csv', index=False)
-
+# Takes a list of lists and iterates through to return a flat list
+def flatten_list(lst):
+    return [x for xs in lst for x in xs]
 
 
 # split df and chunk leads by number of sales reps
 def split_dataframe(frame):
-    chunks = []   
-    chunk_size = int(input("Enter number of sales support reps assigned to this spreadsheet: "))
-    
-    result = len(frame) // chunk_size + (1 if len(frame) % chunk_size else 0)
-        
-    for bucket in range(0, len(frame), result):
-        chunks.append(frame[bucket:bucket + result])
+    try:
+        chunks = []   
 
-    print(len(frame))
-    print(chunks)
+        chunk_size = int(input("Enter number of sales support reps assigned to this spreadsheet: "))    
+        result = len(frame) / chunk_size
+        result = Decimal(result)
 
+        print(result)
 
+        if (math.ceil(result) > result):
+            result = result.quantize(Decimal("1"), ROUND_HALF_UP)
+        else:
+            result = result.quantize(Decimal("1"), ROUND_HALF_DOWN)
 
+        result = int(result)
+
+        for bucket in range(0, len(frame), result):
+            chunks.append(frame[bucket:bucket + result])
+
+        longest_straw = random.randrange(0, len(chunks) - 1)
+        if (chunks[-1] != 0):
+            test = chunks.pop()
+            popped = flatten_list(test)
+            chunks[longest_straw].append(popped)
+
+        for x in range(len(chunks)):
+            print(len(chunks[x]))
+            print(chunks[x])
+    except ValueError:
+        print("Incorrect type of value. Must be numeric.")
 
 def main():
     frame = read_data()
-    while True:
-        try:
-            split_dataframe(frame)
-            # print("Successfully created a cleaned spreadsheet!")
-            break
+    try:
+        split_dataframe(frame)
+        # print("Successfully created a cleaned spreadsheet!")
 
-        except ValueError:
-            print("Must be a valid number only...")
-            continue
+    except ValueError:
+        print("Must be a valid number only...")
 
 
 
