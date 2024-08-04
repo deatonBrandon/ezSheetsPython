@@ -3,7 +3,9 @@ import csv
 import glob 
 import random
 import math
-from decimal import Decimal, ROUND_HALF_UP, ROUND_HALF_DOWN
+import numpy as np
+import numpy._core.numeric as _nx
+from decimal import Decimal, ROUND_HALF_UP, ROUND_HALF_DOWN, ROUND_HALF_EVEN
 
 
 # I want to try something different
@@ -37,6 +39,42 @@ def flatten_list(lst):
     return [x for xs in lst for x in xs]
 
 
+
+    
+# def split_list(ary, indices_or_sections, axis=0):
+#     try:
+#         Ntotal = ary.shape[axis]
+#     except AttributeError:
+#         Ntotal = len(ary)
+#     try:
+#         # handle array case.
+#         Nsections = len(indices_or_sections) + 1
+#         div_points = [0] + list(indices_or_sections) + [Ntotal]
+#     except TypeError:
+#         # indices_or_sections is a scalar, not an array.
+#         Nsections = int(indices_or_sections)
+#         if Nsections <= 0:
+#             raise ValueError('number sections must be larger than 0.') from None
+#         Neach_section, extras = divmod(Ntotal, Nsections)
+#         section_sizes = ([0] +
+#                          extras * [Neach_section+1] +
+#                          (Nsections-extras) * [Neach_section])
+#         div_points = _nx.array(section_sizes, dtype=np.intp).cumsum()
+
+#     sub_arys = []
+#     sary = _nx.swapaxes(ary, axis, 0)
+#     for i in range(Nsections):
+#         st = div_points[i]
+#         end = div_points[i + 1]
+#         sub_arys.append(_nx.swapaxes(sary[st:end], axis, 0))
+
+#     return sub_arys
+
+
+
+
+
+
 # split df and chunk leads by number of sales reps
 def split_dataframe(frame):
     try:
@@ -45,14 +83,7 @@ def split_dataframe(frame):
         chunk_size = int(input("Enter number of sales support reps assigned to this spreadsheet: "))    
         result = len(frame) / chunk_size
         result = Decimal(result)
-
-        print(result)
-
-        if (math.ceil(result) > result):
-            result = result.quantize(Decimal("1"), ROUND_HALF_UP)
-        else:
-            result = result.quantize(Decimal("1"), ROUND_HALF_DOWN)
-
+        result = result.quantize(Decimal("1"), ROUND_HALF_EVEN)
         result = int(result)
 
         for bucket in range(0, len(frame), result):
@@ -64,9 +95,9 @@ def split_dataframe(frame):
             popped = flatten_list(test)
             chunks[longest_straw].append(popped)
 
-        for x in range(len(chunks)):
-            print(len(chunks[x]))
-            print(chunks[x])
+        # for x in range(len(chunks)):
+        #     print(len(chunks[x]))
+        #     print(chunks[x])
     except ValueError:
         print("Incorrect type of value. Must be numeric.")
 
