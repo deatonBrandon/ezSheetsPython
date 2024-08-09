@@ -1,10 +1,6 @@
 # import ezsheets
-import csv
-import glob 
+from db import read_data
 import random
-import math
-import numpy as np
-from decimal import Decimal, ROUND_HALF_DOWN
 
 
 # I want to try something different
@@ -12,33 +8,6 @@ from decimal import Decimal, ROUND_HALF_DOWN
 # Only issue is I'm lazy, and I don't want to rename the csv file every time I want to upload ( i.e = myfile.csv, myfile (1).csv, myfile (2).csv ... )
 # I like glob. It's not as performant as os, but these files are only a couple hundred rows
 
-DIR = glob.glob("./*.csv")
-
-# read csv file from the glob and append it to a list
-def read_data():
-    frame = []
-    try:
-        for spreadsheet in DIR:
-            with open(spreadsheet, "r") as infile:
-                reader = csv.reader(infile)
-                next(reader)
-                for rows in reader:
-                    frame.append(rows)
-                print(len(frame))
-                return frame
-
-    except FileNotFoundError:
-        print("No .csv files exist in this directory. Please try uploading the correct file format.")
-    except FileExistsError:
-        print("This file doesn't exist in this directory. Please try again later.")
-    except OSError:
-        print("Something went wrong... Please try again later.")
-
-
-
-# Takes a list of lists and iterates through to return a flat list
-# def flatten_list(lst):
-#     return [x for xs in lst for x in xs]
 
 # split df and chunk leads by number of sales reps
 def split_the_spreadsheet(frame):
@@ -66,9 +35,8 @@ def split_the_spreadsheet(frame):
                         temp_lst.append(random_int) 
                         remainder -= 1
                     else:  
-                        random_int = random.randint(0, len(chunks) - 1)
+                        random_int = random.randint(0, len(chunks) - 2)
                         continue
-
             print("TEMP LIST: ", temp_lst)
             print("REMAINING CHUNK: ", chunks[-1])
             
@@ -76,6 +44,9 @@ def split_the_spreadsheet(frame):
                 popped = chunks[-1].pop()
                 chunks[x].append(popped)
             chunks.pop()
+        else:
+            print("ALL REPS HAVE EQUAL LEADS")
+
 
 
         for x in range(len(chunks)):
